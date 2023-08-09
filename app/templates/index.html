@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智者工具</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8">
+                <h1>智者工具</h1>
+            </div>
+            <div class="col-sm-4">
+                <form method="get" class="form-inline float-right">
+                    <input type="checkbox" name="lock_search" value="true" {% if lock_search %}checked{% endif %}> 锁定搜索
+                    <input type="text" name="search" value="{{ search_term }}" placeholder="搜索特征名称和特征描述">
+                    <button type="submit" class="btn btn-primary">搜索</button>
+                    <a href="/" class="btn btn-secondary">重置</a>
+                </form>
+            </div>
+        </div>
+        <table class="table table-bordered" style="width: 90%; margin: auto;">
+            <thead>
+                <tr>
+                    <th>
+                        <a href="?sort_column=特征编号&sort_order={{ sort_order_next['特征编号'] }}" class="sort-link">
+                            特征编号<i class="fas fa-sort"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort_column=特征名称&sort_order={{ sort_order_next['特征名称'] }}" class="sort-link">
+                            特征名称<i class="fas fa-sort"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort_column=特征描述&sort_order={{ sort_order_next['特征描述'] }}" class="sort-link">
+                            特征描述<i class="fas fa-sort"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="?sort_column=特征类型&sort_order={{ sort_order_next['特征类型'] }}" class="sort-link">
+                            特征类型<i class="fas fa-sort"></i>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in df.itertuples() %}
+                <tr>
+                    <td>{{ row.特征编号 }}</td>
+                    <td>{{ row.特征名称 }}</td>
+                    <td>{{ row.特征描述 }}</td>
+                    <td>{{ row.特征类型 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- 分页链接部分 -->
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        // 更改排序图标
+        const sortLinks = document.querySelectorAll('.sort-link');
+        sortLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                const icon = this.children[0];
+                if (icon.classList.contains('fa-sort')) {
+                    icon.classList.remove('fa-sort');
+                    icon.classList.add('fa-sort-up');
+                } else if (icon.classList.contains('fa-sort-up')) {
+                    icon.classList.remove('fa-sort-up');
+                    icon.classList.add('fa-sort-down');
+                } else if (icon.classList.contains('fa-sort-down')) {
+                    icon.classList.remove('fa-sort-down');
+                    icon.classList.add('fa-sort');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
