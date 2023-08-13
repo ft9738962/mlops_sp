@@ -47,6 +47,11 @@
             </tbody>
         </table>
         <!-- 分页链接部分 -->
+        <a href="?page={{ page_number - 1 }}">上一页</a>
+        <input type="number" id="jumpToPage" min="1" value="{{ page_number }}">
+        <button onclick="window.location.href='?page=' + document.getElementById('jumpToPage').value">跳转</button>
+        <a href="?page={{ page_number + 1 }}">下一页</a>
+
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>

@@ -25,7 +25,8 @@ def index():
     sort_order_change = request.args.get('sort_order_change', None)
     search_term = request.args.get('search', '')
     lock_search = request.args.get('lock_search', 'false') == 'true'
-    page_number = int(request.args.get('page_number', '1'))
+    page_number = request.args.get('page_number', '1', 'int')
+    print(page_number)
 
     # search
     search_df = df if lock_search \
@@ -59,8 +60,6 @@ def index():
             rotate_order((input_status, 'sort'))
         icon_dict[sort_column] = \
             rotate_order((input_status, 'icon'))
-        print(f'sort dict: {sort_dict}')
-        print(f'icon dict: {icon_dict}')
 
 
     if sort_column and sort_order_change:
@@ -76,7 +75,6 @@ def index():
         if v != 'origin':
             sort_cols.append(k) 
             ascend_cols.append(1 if v=='asc' else 0)
-    print(sort_cols, ascend_cols)
     
     sorted_df = search_df.sort_values(
         by=sort_cols, ascending=ascend_cols) if len(sort_cols) \
@@ -86,9 +84,7 @@ def index():
     rows_per_page = 10
     start_index = (page_number - 1) * rows_per_page
     page_df = sorted_df.iloc[start_index: start_index + rows_per_page]
-
-    
-            
+    print(start_index)
 
     return render_template('index.html', 
         df=page_df, sort_column=sort_column, 
