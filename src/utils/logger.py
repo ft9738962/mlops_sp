@@ -1,12 +1,14 @@
 import logging
 from datetime import datetime
 
+from src.utils.directory_utils import find_root
+
 _logger_instance = None
 
 def get_logger():
     global _logger_instance
     if _logger_instance is None:
-        _logger_instance = logging.getLogger("mlops_logger")
+        _logger_instance = logging.getLogger('mlops_logger')
         _logger_instance.setLevel(logging.DEBUG)
 
         ch = logging.StreamHandler()

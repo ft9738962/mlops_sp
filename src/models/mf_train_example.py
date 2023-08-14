@@ -1,7 +1,3 @@
-# The data set used in this example is from http://archive.ics.uci.edu/ml/datasets/Wine+Quality
-# P. Cortez, A. Cerdeira, F. Almeida, T. Matos and J. Reis.
-# Modeling wine preferences by data mining from physicochemical properties. In Decision Support Systems, Elsevier, 47(4):547-553, 2009.
-
 import os
 import warnings
 import sys
@@ -16,11 +12,7 @@ import mlflow
 from mlflow.models import infer_signature
 import mlflow.sklearn
 
-import logging
-
-logging.basicConfig(level=logging.WARN)
-logger = logging.getLogger(__name__)
-
+from src.db.pg_handler import pgHandler
 
 def eval_metrics(actual, pred):
     rmse = np.sqrt(mean_squared_error(actual, pred))

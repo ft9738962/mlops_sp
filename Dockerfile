@@ -16,7 +16,7 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
 RUN mkdir /work
 
 # 将本地文件夹复制到容器的 /work 目录下
-COPY models /work/models
+COPY src /work/src
 COPY scripts /work/scripts
 COPY requirements.txt /work
 
