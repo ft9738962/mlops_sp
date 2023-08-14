@@ -1,4 +1,4 @@
-[filepath]
+[file_path]
 raw_txt = 'data/corpus.txt'
 cleaned_csv = 'data/comments.csv'
 

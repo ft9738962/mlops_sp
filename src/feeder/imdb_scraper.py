@@ -59,6 +59,7 @@ class IMDB_SCRAPER:
                 start_index = len(corpus)
                 print(start_index)
             except:
+                print(f'scrape end')
                 break
         driver.quit()
         self.data = corpus
@@ -77,10 +78,9 @@ class IMDB_SCRAPER:
 
 if __name__ == "__main__":
     url="https://www.imdb.com/title/tt15398776/reviews?spoiler=hide&sort=submissionDate&dir=desc&ratingFilter=0"
+    txt_path = find_root() / \
+        get_config()['file_path']['raw_txt']
     imdb_scraper=IMDB_SCRAPER()
     imdb_scraper.get_data(url, 3)
-    imdb_scraper.save_date(
-        find_root() / 
-        get_config()['filepath']['raw_txt']
-        )
+    imdb_scraper.save_date(txt_path)
 

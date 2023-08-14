@@ -2,6 +2,9 @@ import csv
 from datetime import datetime
 import re
 
+from src.utils.config import get_config
+from src.utils.directory_utils import find_root
+
 def read_comments(
         file: str, 
         limit: None | int=None
@@ -108,8 +111,8 @@ def parse_comment(comment: str) -> None | tuple:
         cmt_end_index].replace('\r','\n').replace('\n','')
     return [date, score, comment_content]
 
-def save_to_csv(comments):
-    with open("../../data/comments.csv", "w") as f:
+def save_to_csv(file, comments):
+    with open(file, "w") as f:
         writer = csv.writer(f)
         writer.writerow(["date", "score", "comment"])
         
@@ -118,4 +121,6 @@ def save_to_csv(comments):
                 writer.writerow(parse_comment(cmt))
 
 if __name__ == "__main__":
-    save_to_csv(read_comments('../../data/corpus.txt'))
+    txt_path = find_root() / get_config()['file_path']['raw_txt']
+    csv_path = find_root() / get_config()['file_path']['cleaned_csv']
+    save_to_csv(csv_path, read_comments(txt_path))
