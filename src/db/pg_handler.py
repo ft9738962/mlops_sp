@@ -5,7 +5,7 @@ import psycopg2
 from src.utils.config import get_config
 from src.utils.directory_utils import find_root
 
-class pgHandler:
+class PgHandler:
     def __init__(self, config):
         self.config = config['postgres_dev']
 
@@ -31,7 +31,6 @@ class pgHandler:
 
         with self.get_connection() as conn:
             with conn.cursor() as cur:
-
                 create_train_data_tbl_query = """
                 CREATE TABLE train_data (
                     id SERIAL PRIMARY KEY,
@@ -86,6 +85,6 @@ class pgHandler:
 if __name__ == "__main__":
     csv_path = find_root() / \
         get_config()['file_path']['cleaned_csv']
-    pg_handler = pgHandler(get_config())
+    pg_handler = PgHandler(get_config())
     pg_handler.read_csv_and_insert(csv_path)
 

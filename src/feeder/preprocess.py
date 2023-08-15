@@ -1,12 +1,15 @@
-import csv
 from datetime import datetime
+from pathlib import Path
 import re
+import warnings
+
+import pandas as pd
 
 from src.utils.config import get_config
 from src.utils.directory_utils import find_root
 
 def read_comments(
-        file: str, 
+        file: Path, 
         limit: None | int=None
     ) -> list[str]:
     '''
@@ -111,16 +114,59 @@ def parse_comment(comment: str) -> None | tuple:
         cmt_end_index].replace('\r','\n').replace('\n','')
     return [date, score, comment_content]
 
-def save_to_csv(file, comments):
-    with open(file, "w") as f:
-        writer = csv.writer(f)
-        writer.writerow(["date", "score", "comment"])
-        
-        for cmt in comments:
-            if verify_comment(cmt):
-                writer.writerow(parse_comment(cmt))
+def trans_txt_to_df(comments: list[str]) -> pd.DataFrame:
+    '''
+    Purpose: 将列表数据转换称为pandas dataframe
+    Args:
+        comments: 原始评论列表
+    Return:
+        pd.DataFrame:: 转换后的dataframe
+    '''
+    parsed_comments = list(
+        parse_comment(cmt) for cmt 
+        in filter(verify_comment, comments))
+    return pd.DataFrame(parsed_comments, 
+            columns=['date', 'score', 'comment']).astype({'score': int})
+
+def add_feature(df: list[str]) -> pd.DataFrame:
+    '''
+    Purpose: 将原始行中的行号加入到行中
+    Args:
+        comments: 原始行
+    Return:
+        pd.DataFrame: 原始行中加入行号后的行
+    '''
+    # 添加情感区间
+    df['sentiment'] = 0
+    df.loc[df.score>=4,'sentiment'] += 1
+    df.loc[df.score>=7,'sentiment'] += 1
+
+    # 添加主观表达
+    warnings.filterwarnings('ignore')
+    subj_exp_pattern = r"(?i)\b(I'm|I|My)\b"
+    df['is_subj'] = df['comment'].str.contains(
+        subj_exp_pattern, regex=True).astype(int)
+    
+    return df
+
+def save_to_csv(df: pd.DataFrame, file: Path) -> None:
+    '''
+    Purpose: 将原始行中的行号加入到行中
+    Args:
+        comments: 原始行
+    Return:
+        pd.DataFrame: 原始行中加入行号后的行
+    '''
+    df[['date','score','sentiment',
+        'is_subj','comment']].to_csv(
+        file, index=False)
+
 
 if __name__ == "__main__":
     txt_path = find_root() / get_config()['file_path']['raw_txt']
     csv_path = find_root() / get_config()['file_path']['cleaned_csv']
-    save_to_csv(csv_path, read_comments(txt_path))
+    
+    raw_txt = read_comments(txt_path)
+    raw_df = trans_txt_to_df(raw_txt)
+    feat_df = add_feature(raw_df)
+    save_to_csv(feat_df, csv_path)

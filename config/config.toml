@@ -1,6 +1,7 @@
 [file_path]
 raw_txt = 'data/corpus.txt'
 cleaned_csv = 'data/comments.csv'
+model_pkl = 'model/model.pkl'
 
 [postgres_dev]
 database = 'dev'
@@ -8,3 +9,6 @@ host = '127.0.0.1'
 port = 5432
 user = 'postgres'
 pw = '123456'
+
+[model]
+seed_num = 1234
