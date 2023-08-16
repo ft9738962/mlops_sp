@@ -1,7 +1,7 @@
 [file_path]
 raw_txt = 'data/corpus.txt'
 cleaned_csv = 'data/comments.csv'
-model_pkl = 'model/model.pkl'
+model_path = 'model/model_1'
 
 [postgres_dev]
 database = 'dev'

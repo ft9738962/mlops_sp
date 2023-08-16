@@ -25,26 +25,29 @@ def prepare_train_test_data(
 def train_model(
         train_data: pd.DataFrame, 
         model_path: Path,
-        label: str='score'):
+        label: str='score',
+        verbosity: int=2,
+        *kwargs):
     predictor = mmp(
         label=label, 
         eval_metric='acc', 
         path=model_path
     )
-    predictor.fit(train_data, time_limit=180)
+    predictor.set_verbosity(verbosity)
+    predictor.fit(train_data, *kwargs)
     return predictor
 
 def eval_model(predictor: mmp, test_data: pd.DataFrame = None):
     if test_data is None:
         test_data = test_data
     test_score = predictor.evaluate(
-        test_data, metrics=['acc', 'f1'])
+        test_data)
     print(test_score)
 
 if __name__ == '__main__':
     config = get_config()
     csv_file = find_root() / config['file_path']['cleaned_csv']
-    model_path = find_root() / config['file_path']['model_pkl']
+    model_path = find_root() / config['file_path']['model_path']
     seed_num = config['model']['seed_num']
 
     train_data, test_data = prepare_train_test_data(
