@@ -1,0 +1,16 @@
+version: '3'
+services:
+  database:
+    image: postgres:15
+    container_name: pg_master
+    restart: always
+    volumes:
+        - pg_data:/var/lib/postgresql/data
+        - ./mlops_pg.conf:/etc/postgresql/postgresql.conf
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      - 'POSTGRES_PASSWORD=123456'
+      - 'POSTGRES_DB=mlops'
+volumes:
+  pg_data:
