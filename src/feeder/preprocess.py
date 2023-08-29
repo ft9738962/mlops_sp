@@ -20,7 +20,7 @@ def read_comments(
     Return:
         list[str]: 拆开后的原始评论
     '''
-    with open(file, "r") as f:
+    with open(file, "r", encoding='utf-8') as f:
         comments = []
         comment = ''
         for line in f.readlines():
@@ -160,6 +160,16 @@ def save_to_csv(df: pd.DataFrame, file: Path) -> None:
     df[['date','score','sentiment',
         'is_subj','comment']].to_csv(
         file, index=False)
+
+def log_data(log_file: Path) -> None:
+    '''
+    Purpose: 将数据处理记录到数据记录中
+    Args:
+        log_file: 记录文件位置
+    Return:
+        None
+    '''
+    pass
 
 
 if __name__ == "__main__":

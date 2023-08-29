@@ -1,6 +1,5 @@
 [file_path]
-raw_txt = 'data/corpus.txt'
-cleaned_csv = 'data/comments.csv'
+data_dir = 'data/'
 model_path = 'model/model_1'
 
 [postgres_dev]
@@ -9,6 +8,9 @@ host = '127.0.0.1'
 port = 5432
 user = 'postgres'
 pw = '123456'
+
+[data]
+version = 'v001'
 
 [model]
 seed_num = 1234

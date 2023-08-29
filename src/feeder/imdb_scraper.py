@@ -1,6 +1,8 @@
+from datetime import datetime
 from pathlib import Path
 import time
 
+import pytz
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -23,12 +25,14 @@ class IMDB_SCRAPER:
     def get_data(self,
         url: str, 
         load_delay: int=1,
+        update_offset: int=0,
         ) -> None:
         '''
         Purpose: 抓数据
         Args
             url: str: 网址
             load_dealy: 延迟时间,默认1s
+            update_offset: 跳过多少更新
         Return: list(str): 数据
         '''
         # 初始化headless浏览器
@@ -39,6 +43,14 @@ class IMDB_SCRAPER:
         
         corpus=[]
         start_index = 0
+
+        if update_offset:
+            try:
+                total_cnt = int(driver.find_elements(By.XPATH,'//*[@id="main"]/section/div[2]/div[1]/div[1]/span')[0].text.split(' ')[0].replace(',',''))
+                scrape_need = total_cnt - update_offset
+            except:
+                print('parse total reviews number failed, will scrape whole data')
+                update_offset = 0
 
         while True:
             try:
@@ -58,6 +70,11 @@ class IMDB_SCRAPER:
                 # 计算加载后的位置
                 start_index = len(corpus)
                 print(start_index)
+
+                if update_offset and start_index >= scrape_need:
+                    corpus = corpus[:scrape_need]
+                    print(f'new data scrape end')
+                    break
             except:
                 print(f'scrape end')
                 break
@@ -66,20 +83,24 @@ class IMDB_SCRAPER:
         print(f'get {len(corpus)} lines of comment')
 
     def save_date(self,
-        file: Path | str,
+        save_dir: Path | str,
         sep: str='<>?',
         allow_duplicated: bool=False,
         ):
         if not allow_duplicated:
             data = list(set(self.data))
-        with open(file, 'w') as f:
+        dt = datetime.now(pytz.timezone(
+                'Asia/Shanghai')).time.strftime(
+                '%y%m%d')
+        file_name = f'{dt}_raw_comment.txt'
+        with open(save_dir / file_name, 'w') as f:
             f.write(sep.join(data))
             print(f'write {len(data)} (raw: {len(self.data)}) lines of comment')
 
 if __name__ == "__main__":
     url="https://www.imdb.com/title/tt15398776/reviews?spoiler=hide&sort=submissionDate&dir=desc&ratingFilter=0"
     txt_path = find_root() / \
-        get_config()['file_path']['raw_txt']
+        get_config()['file_path']['data_dir']
     imdb_scraper=IMDB_SCRAPER()
     imdb_scraper.get_data(url, 3)
     imdb_scraper.save_date(txt_path)
