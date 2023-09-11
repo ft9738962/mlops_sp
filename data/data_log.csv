@@ -1,3 +1,3 @@
-get_date,raw_data_num,version,raw_data_loc,parsed_data_loc
-2023-08-01,2219,"v001","230801_raw_comments.txt","230801_parsed_comments.csv"
-2023-08-29,200,"v001","230829_raw_comments.txt","230829_parsed_comments.csv"
+scrape_date,raw_data_num,version,raw_data_loc
+2023-08-01,2219,"v001","230801_raw_comments.txt"
+2023-08-29,200,"v001","230829_raw_comments.txt"

@@ -82,26 +82,28 @@ class IMDB_SCRAPER:
         self.data = corpus
         print(f'get {len(corpus)} lines of comment')
 
-    def save_date(self,
+    def save_data(self,
         save_dir: Path | str,
         sep: str='<>?',
         allow_duplicated: bool=False,
         ):
         if not allow_duplicated:
-            data = list(set(self.data))
+            self.filtered_data = list(set(self.data))
+        else:
+            self.filtered_data = self.data
         dt = datetime.now(pytz.timezone(
-                'Asia/Shanghai')).time.strftime(
+                'Asia/Shanghai')).strftime(
                 '%y%m%d')
         file_name = f'{dt}_raw_comment.txt'
         with open(save_dir / file_name, 'w') as f:
-            f.write(sep.join(data))
-            print(f'write {len(data)} (raw: {len(self.data)}) lines of comment')
+            f.write(sep.join(self.filtered_data))
+            print(f'write {len(self.filtered_data)} (raw: {len(self.data)}) lines of comment')
 
 if __name__ == "__main__":
     url="https://www.imdb.com/title/tt15398776/reviews?spoiler=hide&sort=submissionDate&dir=desc&ratingFilter=0"
-    txt_path = find_root() / \
+    save_dir = find_root() / \
         get_config()['file_path']['data_dir']
     imdb_scraper=IMDB_SCRAPER()
     imdb_scraper.get_data(url, 3)
-    imdb_scraper.save_date(txt_path)
+    imdb_scraper.save_data(save_dir)
 

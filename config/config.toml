@@ -1,6 +1,7 @@
 [file_path]
 data_dir = 'data/'
 model_path = 'model/model_1'
+log_file = 'data_log.csv'
 
 [postgres_dev]
 database = 'dev'

@@ -1,12 +1,28 @@
 from datetime import datetime
 from pathlib import Path
 import re
+import typing as t
 import warnings
 
+import pytz
 import pandas as pd
 
 from src.utils.config import get_config
 from src.utils.directory_utils import find_root
+
+def retrive_latest_version_data(
+    log_file: Path,
+) -> t.List[str]:
+    '''
+    Purpose: 获取最新数据版本的文件地址
+    Args:
+        log_file: 数据日志记录文件
+    Return: t.List[str]: 记录文件地址
+    '''
+    log_df = pd.read_csv(log_file)
+    version = log_df['version'].max()
+    return log_df.loc[log_df.version==version,
+        'raw_data_loc'].to_list()
 
 def read_comments(
         file: Path, 
@@ -128,6 +144,16 @@ def trans_txt_to_df(comments: list[str]) -> pd.DataFrame:
     return pd.DataFrame(parsed_comments, 
             columns=['date', 'score', 'comment']).astype({'score': int})
 
+def combine_dfs(df_list: list[pd.DataFrame]) -> pd.DataFrame:
+    '''
+    Purpose: 将数据集内的列表堆叠
+    Args:
+        df_list: 数据集列表
+    Return:
+        pd.DataFrame:: 堆叠后的dataframe
+    '''
+    return pd.concat(df_list)
+
 def add_feature(df: list[str]) -> pd.DataFrame:
     '''
     Purpose: 将原始行中的行号加入到行中
@@ -161,22 +187,35 @@ def save_to_csv(df: pd.DataFrame, file: Path) -> None:
         'is_subj','comment']].to_csv(
         file, index=False)
 
-def log_data(log_file: Path) -> None:
+def preprocess_data(
+    input_dir: Path, 
+    output_dir: Path,
+    log_file: str) -> None:
     '''
-    Purpose: 将数据处理记录到数据记录中
+    Purpose: 预处理数据
     Args:
-        log_file: 记录文件位置
-    Return:
-        None
+        input_dir: 输入文件夹,
+        output_dir: 输出文件夹,
+        log_file: 记录文件名
+    Return: None
     '''
-    pass
-
+    df_list = []
+    for txt_file in retrive_latest_version_data(input_dir / log_file):
+        raw_txt = read_comments(input_dir / txt_file)
+        raw_df = trans_txt_to_df(raw_txt)
+        df_list.append(raw_df)
+    combined_df = combine_dfs(df_list)
+    feat_df = add_feature(combined_df)
+    dt = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%y%m%d')
+    output_file = output_dir / f'{dt}_parsed_comments.csv'
+    save_to_csv(feat_df, output_file)
 
 if __name__ == "__main__":
-    txt_path = find_root() / get_config()['file_path']['raw_txt']
-    csv_path = find_root() / get_config()['file_path']['cleaned_csv']
+    input_dir = find_root() / get_config()['file_path']['data_dir']
+    output_dir = find_root() / get_config()['file_path']['data_dir']
+    log_file = find_root() / get_config()['file_path']['log_file']
     
-    raw_txt = read_comments(txt_path)
-    raw_df = trans_txt_to_df(raw_txt)
-    feat_df = add_feature(raw_df)
-    save_to_csv(feat_df, csv_path)
+    preprocess_data(
+        input_dir = input_dir,
+        output_dir = output_dir,
+        log_file = log_file)
