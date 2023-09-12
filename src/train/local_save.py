@@ -5,7 +5,7 @@ import warnings
 import mlflow
 import pandas as pd
 from autogluon.tabular import TabularDataset, TabularPredictor
-
+from mlflow.models import infer_signature
 
 warnings.filterwarnings('ignore')
 
@@ -13,6 +13,7 @@ if __name__ == '__main__':
     class CusModel(mlflow.pyfunc.PythonModel):
         def load_context(self, context):
             from autogluon.tabular import TabularPredictor as tbl
+            print(f'load model from: {context.artifacts["model_path"]}')
             self.predictor = tbl.load(
                 context.artifacts["model_path"])
 
@@ -32,20 +33,22 @@ if __name__ == '__main__':
         data_url = 'https://raw.githubusercontent.com/mli/ag-docs/main/knot_theory/'
         train_data = TabularDataset(f'{data_url}train.csv')
         label = 'signature'
-        pred_pth = str(tracking_uri / run.info.experiment_id / run.info.run_id / 'artifacts' / 'autogluon_model')
+        signature = infer_signature(train_data.drop(columns=label), train_data[label])
+        model_pth = 'AgModels'
         predictor = TabularPredictor(
             label=label,
-            path=pred_pth).fit(train_data)
+            path=model_pth).fit(train_data)
         
-        artifacts = {
-            'model_path': pred_pth
-        }
+        # artifacts = {
+        #     'model_path': model_pth
+        # }
         mlflow.pyfunc.log_model(
-            artifact_path='autogluon_model', 
+            artifact_path='ag_mlflow_pyfunc', 
             python_model=CusModel(),
-            artifacts = artifacts)
+            # artifacts = artifacts,
+            signature = signature)
 
-        test_data = TabularDataset(f'{data_url}test.csv')
-        predictor = mlflow.pyfunc.load_model(pred_pth)
-        y_pred = predictor.predict(test_data.drop(columns=[label]))
-        print(y_pred.head())
+        # test_data = TabularDataset(f'{data_url}test.csv')
+        # predictor = mlflow.pyfunc.load_model(model_pth)
+        # y_pred = predictor.predict(test_data.drop(columns=[label]))
+        # print(y_pred.head())
